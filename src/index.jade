@@ -1,0 +1,248 @@
+doctype html
+html
+  head
+    meta(charset='utf-8')
+    meta(name='viewport', content='width=device-width, initial-scale=1, maximum-scale=1')
+    title Asynchronous Task Queues
+
+    link(rel='stylesheet', type='text/css', href='build/build.css')
+
+  body
+
+    article
+
+      section
+        h1 Asynchronous Task Queues
+        h3 Aka Asynchronous Job Queues
+
+      section
+        h2 In a Nutshell
+        p Task queues manage background work that must be executed outside the usual HTTP request-response cycle.
+        p.credits www.fullstackpython.com/task-queues.html
+
+      section
+        h2 Topics
+        ul.bullet
+          li
+            h3 Why?
+            p Use-Cases
+          li
+            h3 How?
+            p Architecture
+          li
+            h3 How exactly?
+            p Product Evaluation
+
+      section
+        h2 Why?
+        h3 Use-Cases
+        ul.bullet
+          li.strong Certain actions on your website are too slow
+          li.strong Certain actions would take too long to be performed at all
+
+      section
+        h2 But why this way?
+        h3 Requirements
+        ul.bullet
+          li.strong Many languages don't support proper threading
+            p like PHP, Python or Ruby
+          li.strong Integrated threading doesn't scale well
+
+      section
+        h2 How?
+        h3 Architecture
+        p There are two basic architectures:
+        ul.bullet
+          li.strong without a broker (tasks aren't interactive)
+          li.strong and with a broker (tasks are interactive)
+
+      section
+        p And two basic execution types:
+        ul.bullet
+          li.strong instantaneous (tasks are executed as soon as possible)
+          li.strong and scheduled (tasks are executed at a given time)
+
+      section
+        h3 Asynchronous Task Queue without Broker
+        img(src='images/Asynchronous Task Queue (without Broker).png')
+
+      section
+        h3 Scaled Asynchronous Task Queue without Broker
+        img(src='images/Proper Asynchronous Task Queue (without Broker).png')
+
+      section
+        h3 Asynchronous Task Queue with Broker
+        img(src='images/Asynchronous Task Queue (with Broker).png')
+
+      section
+        h3 Scaled Asynchronous Task Queue with Broker
+        img(src='images/Proper Asynchronous Task Queue (with Broker).png')
+
+      section
+        h2 How exactly?
+        h3 Product Evaluation
+        p There are a few options. So what is the right choice?
+
+      section
+        h2 What's important?
+        h3 Criteria
+        ul.bullet
+          li.strong Language of the client
+          li.strong Language of the worker
+          li.strong License / community
+          li.strong Basic architecture
+          li.strong Scheduling
+
+      section
+        h2 Celery
+        h3 Python and the defacto standard
+        ul.bullet
+          li.strong.danger Python or GTFO
+          li.strong.nice Supported queues: RabbitMQ & Redis
+          li.strong.nice Backend / Dashboard (not out-of-the-box)
+          li.strong.nice Rest API (not out-of-the-box)
+          li.strong.nice Supports scheduling
+          li.strong.nice Healthy community
+
+      section
+        h2 Example
+        h3 Worker
+        pre
+          from celery import Celery
+          app = Celery('tasks', broker='amqp://guest@localhost//')
+          @app.task
+          def bbq():
+              # burn some meat... asynchronously
+              return
+
+      section
+        h2 Example
+        h3 Client
+        pre
+          code.language-javascript.
+            from tasks import bbq
+            bbq.delay()
+
+      section
+        h2 Gearman
+        h3 PHP and simple, but C
+        ul.bullet
+          li.strong.danger Brokerless
+          li.strong.danger Supported queues: only a custom C daemon
+          li.strong.danger No Backend / Dashboard
+          li.strong.danger No Rest API
+          li.strong.danger Does not support scheduling
+          li.strong.nice C, Go, Java, Lisp, .NET, Perl, PHP, Python, Ruby
+          li.strong.nice Simple to use
+
+      section
+        h2 Example
+        h3 Worker
+        pre
+          code.language-javascript.
+            $worker = new GearmanWorker();
+            $worker->addServer();
+            $worker->addFunction("bbq", function() {
+              // burn some meat... asynchronously
+            });
+            while ($worker->work());
+
+      section
+        h2 Example
+        h3 Client
+        pre
+          code.language-javascript.
+            $client = new GearmanClient();
+            $client->addServer();
+            print $client->do("bbq");
+
+      section
+        h2 IronWorker (Iron.io)
+        h3 The cloudy powerhouse
+        ul.bullet
+          li.strong.danger Proprietary, ...
+          li.strong.danger ...subscription-based...
+          li.strong.danger ...cloud service
+          li.strong.nice Clojure, Go, Java, .NET, Node.js, PHP, Python, Ruby
+          li.strong.nice Best out-of-the-box experience
+          li.strong.nice Backend / Dashboard
+          li.strong.nice Rest API
+          li.strong.nice Supports scheduling
+
+      section
+        h2 Resque
+        h3 Ruby and simple, also Github
+        ul.bullet
+          li.strong.danger Ruby or GTFO
+          li.strong.danger Brokerless
+          li.strong.danger Supported queues: Redis
+          li.strong.danger No Rest API
+          li.strong.nice Basic Backend / Dashboard (not out-of-the-box)
+          li.strong.nice Supports scheduling (not out-of-the-box)
+          li.strong.nice Simplest product/protocol
+
+      section
+        h2 Example
+        h3 Worker
+        pre
+          code.language-javascript.
+            class BbqJob
+              def work
+                # burn some meat... asynchronously
+              end
+            end
+
+      section
+        h2 Example
+        h3 Client
+        pre
+          code.language-javascript.
+            resque = Resque.new
+            resque << BbqJob.new
+
+      section
+        h2 Spring Batch (Integration)
+        h3 Java and powerful, but not easy
+        ul.bullet
+          li.strong.danger Welcome to the Java enterprise hell
+          li.strong.danger Java or GTFO
+          li.strong.nice Supported queues: everything, really (not out-of-the-box)
+          li.strong.nice Backend / Dashboard (not out-of-the-box)
+          li.strong.nice Rest API
+          li.strong.nice Supports scheduling (not out-of-the-box)
+          li.strong.nice Huge Spring ecosystem
+
+      section
+        h2 Conclusion
+        ul.bullet
+          li Golden cage fine?
+            b &nbsp;IronWorker
+          li Python fine?
+            b &nbsp;Celery
+          li Brokerless fine?
+            b &nbsp;Resque
+          li Enterprise Java fine?
+            b &nbsp;Spring Batch Integration
+          li Else... uhm...
+            b &nbsp;Build it yourself!
+
+      section
+        h2 Thanks
+
+      section
+        h2 References
+        div.references
+          p http://queues.io/
+          p http://www.celeryproject.org/
+          p http://www.iron.io/worker
+          p http://gearman.org/
+          p http://projects.spring.io/spring-batch/
+          p http://projects.spring.io/spring-integration/
+          p http://docs.spring.io/spring-batch/trunk/reference/html/springBatchIntegration.html
+          p http://www.fullstackpython.com/task-queues.html
+          p http://blog.codepath.com/2013/01/06/asynchronous-processing-in-web-applications-part-2-developers-need-to-understand-message-queues/
+          p http://www.jeffknupp.com/blog/2012/03/31/pythons-hardest-problem/
+          p http://yehudakatz.com/2010/08/14/threads-in-ruby-enough-already/
+          p http://www.sitepoint.com/threads-ruby/
+
+    script(src='build/build.js')
