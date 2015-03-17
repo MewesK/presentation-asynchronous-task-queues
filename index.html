@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+    <title>Asynchronous Task Queues</title>
+    <link rel="stylesheet" type="text/css" href="build/build.css">
+  </head>
+  <body>
+    <article>
+      <section>
+        <h1>Asynchronous Task Queues</h1>
+        <h3>Aka Asynchronous Job Queues</h3>
+      </section>
+      <section>
+        <h2>In a Nutshell</h2>
+        <p>Task queues manage background work that must be executed outside the usual HTTP request-response cycle.</p>
+        <p class="credits">www.fullstackpython.com/task-queues.html</p>
+      </section>
+      <section>
+        <h2>Topics</h2>
+        <ul class="bullet">
+          <li>
+            <h3>Why?</h3>
+            <p>Use-Cases</p>
+          </li>
+          <li>
+            <h3>How?</h3>
+            <p>Architecture</p>
+          </li>
+          <li>
+            <h3>How exactly?</h3>
+            <p>Product Evaluation</p>
+          </li>
+        </ul>
+      </section>
+      <section>
+        <h2>Why?</h2>
+        <h3>Use-Cases</h3>
+        <ul class="bullet">
+          <li class="strong">Certain actions on your website are too slow</li>
+          <li class="strong">Certain actions would take too long to be performed at all</li>
+        </ul>
+      </section>
+      <section>
+        <h2>But why this way?</h2>
+        <h3>Requirements</h3>
+        <ul class="bullet">
+          <li class="strong">Many languages don't support proper threading
+            <p>like PHP, Python or Ruby</p>
+          </li>
+          <li class="strong">Integrated threading doesn't scale well</li>
+        </ul>
+      </section>
+      <section>
+        <h2>How?</h2>
+        <h3>Architecture</h3>
+        <p>There are two basic architectures:</p>
+        <ul class="bullet">
+          <li class="strong">without a broker (tasks aren't interactive)</li>
+          <li class="strong">and with a broker (tasks are interactive)</li>
+        </ul>
+      </section>
+      <section>
+        <p>And two basic execution types:</p>
+        <ul class="bullet">
+          <li class="strong">instantaneous (tasks are executed as soon as possible)</li>
+          <li class="strong">and scheduled (tasks are executed at a given time)</li>
+        </ul>
+      </section>
+      <section>
+        <h3>Asynchronous Task Queue without Broker</h3><img src="images/Asynchronous Task Queue (without Broker).png">
+      </section>
+      <section>
+        <h3>Scaled Asynchronous Task Queue without Broker</h3><img src="images/Proper Asynchronous Task Queue (without Broker).png">
+      </section>
+      <section>
+        <h3>Asynchronous Task Queue with Broker</h3><img src="images/Asynchronous Task Queue (with Broker).png">
+      </section>
+      <section>
+        <h3>Scaled Asynchronous Task Queue with Broker</h3><img src="images/Proper Asynchronous Task Queue (with Broker).png">
+      </section>
+      <section>
+        <h2>How exactly?</h2>
+        <h3>Product Evaluation</h3>
+        <p>There are a few options. So what is the right choice?</p>
+      </section>
+      <section>
+        <h2>What's important?</h2>
+        <h3>Criteria</h3>
+        <ul class="bullet">
+          <li class="strong">Language of the client</li>
+          <li class="strong">Language of the worker</li>
+          <li class="strong">License / community</li>
+          <li class="strong">Basic architecture</li>
+          <li class="strong">Scheduling</li>
+        </ul>
+      </section>
+      <section>
+        <h2>Celery</h2>
+        <h3>Python and the defacto standard</h3>
+        <ul class="bullet">
+          <li class="strong danger">Python or GTFO</li>
+          <li class="strong nice">Supported queues: RabbitMQ & Redis</li>
+          <li class="strong nice">Backend / Dashboard (not out-of-the-box)</li>
+          <li class="strong nice">Rest API (not out-of-the-box)</li>
+          <li class="strong nice">Supports scheduling</li>
+          <li class="strong nice">Healthy community</li>
+        </ul>
+      </section>
+      <section>
+        <h2>Example</h2>
+        <h3>Worker</h3>
+        <pre><code class="language-javascript">from celery import Celery
+app = Celery('tasks', broker='amqp://guest@localhost//')
+@app.task
+def bbq():
+    # burn some meat... asynchronously
+    return
+    </code></pre>
+      </section>
+      <section>
+        <h2>Example</h2>
+        <h3>Client</h3>
+        <pre><code class="language-javascript">from tasks import bbq
+bbq.delay()
+</code></pre>
+      </section>
+      <section>
+        <h2>Gearman</h2>
+        <h3>PHP and simple, but C</h3>
+        <ul class="bullet">
+          <li class="strong danger">Brokerless</li>
+          <li class="strong danger">Supported queues: only a custom C daemon</li>
+          <li class="strong danger">No Backend / Dashboard</li>
+          <li class="strong danger">No Rest API</li>
+          <li class="strong danger">Does not support scheduling</li>
+          <li class="strong nice">C, Go, Java, Lisp, .NET, Perl, PHP, Python, Ruby</li>
+          <li class="strong nice">Simple to use</li>
+        </ul>
+      </section>
+      <section>
+        <h2>Example</h2>
+        <h3>Worker</h3>
+        <pre><code class="language-javascript">$worker = new GearmanWorker();
+$worker->addServer();
+$worker->addFunction("bbq", function() {
+  // burn some meat... asynchronously
+});
+while ($worker->work());
+</code></pre>
+      </section>
+      <section>
+        <h2>Example</h2>
+        <h3>Client</h3>
+        <pre><code class="language-javascript">$client = new GearmanClient();
+$client->addServer();
+print $client->do("bbq");
+</code></pre>
+      </section>
+      <section>
+        <h2>IronWorker (Iron.io)</h2>
+        <h3>The cloudy powerhouse</h3>
+        <ul class="bullet">
+          <li class="strong danger">Proprietary, ...</li>
+          <li class="strong danger">...subscription-based...</li>
+          <li class="strong danger">...cloud service</li>
+          <li class="strong nice">Clojure, Go, Java, .NET, Node.js, PHP, Python, Ruby</li>
+          <li class="strong nice">Best out-of-the-box experience</li>
+          <li class="strong nice">Backend / Dashboard</li>
+          <li class="strong nice">Rest API</li>
+          <li class="strong nice">Supports scheduling</li>
+        </ul>
+      </section>
+      <section>
+        <h2>Resque</h2>
+        <h3>Ruby and simple, also Github</h3>
+        <ul class="bullet">
+          <li class="strong danger">Ruby or GTFO</li>
+          <li class="strong danger">Brokerless</li>
+          <li class="strong danger">Supported queues: Redis</li>
+          <li class="strong danger">No Rest API</li>
+          <li class="strong nice">Basic Backend / Dashboard (not out-of-the-box)</li>
+          <li class="strong nice">Supports scheduling (not out-of-the-box)</li>
+          <li class="strong nice">Simplest product/protocol</li>
+        </ul>
+      </section>
+      <section>
+        <h2>Example</h2>
+        <h3>Worker</h3>
+        <pre><code class="language-javascript">class BbqJob
+  def work
+    # burn some meat... asynchronously
+  end
+end
+</code></pre>
+      </section>
+      <section>
+        <h2>Example</h2>
+        <h3>Client</h3>
+        <pre><code class="language-javascript">resque = Resque.new
+resque << BbqJob.new
+</code></pre>
+      </section>
+      <section>
+        <h2>Spring Batch (Integration)</h2>
+        <h3>Java and powerful, but not easy</h3>
+        <ul class="bullet">
+          <li class="strong danger">Welcome to the Java enterprise hell</li>
+          <li class="strong danger">Java or GTFO</li>
+          <li class="strong nice">Supported queues: everything, really (not out-of-the-box)</li>
+          <li class="strong nice">Backend / Dashboard (not out-of-the-box)</li>
+          <li class="strong nice">Rest API</li>
+          <li class="strong nice">Supports scheduling (not out-of-the-box)</li>
+          <li class="strong nice">Huge Spring ecosystem</li>
+        </ul>
+      </section>
+      <section>
+        <h2>Conclusion</h2>
+        <ul class="bullet">
+          <li>Golden cage fine?<b>&nbsp;IronWorker</b></li>
+          <li>Python fine?<b>&nbsp;Celery</b></li>
+          <li>Brokerless fine?<b>&nbsp;Resque</b></li>
+          <li>Enterprise Java fine?<b>&nbsp;Spring Batch Integration</b></li>
+          <li>Else... uhm...<b>&nbsp;Build it yourself!</b></li>
+        </ul>
+      </section>
+      <section>
+        <h2>Thanks</h2>
+      </section>
+      <section>
+        <h2>References</h2>
+        <div class="references">
+          <p>http://queues.io/</p>
+          <p>http://www.celeryproject.org/</p>
+          <p>http://www.iron.io/worker</p>
+          <p>http://gearman.org/</p>
+          <p>http://projects.spring.io/spring-batch/</p>
+          <p>http://projects.spring.io/spring-integration/</p>
+          <p>http://docs.spring.io/spring-batch/trunk/reference/html/springBatchIntegration.html</p>
+          <p>http://www.fullstackpython.com/task-queues.html</p>
+          <p>http://blog.codepath.com/2013/01/06/asynchronous-processing-in-web-applications-part-2-developers-need-to-understand-message-queues/</p>
+          <p>http://www.jeffknupp.com/blog/2012/03/31/pythons-hardest-problem/</p>
+          <p>http://yehudakatz.com/2010/08/14/threads-in-ruby-enough-already/</p>
+          <p>http://www.sitepoint.com/threads-ruby/</p>
+        </div>
+      </section>
+    </article>
+    <script src="build/build.js"></script>
+  </body>
+</html>
