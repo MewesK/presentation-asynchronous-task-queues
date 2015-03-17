@@ -108,12 +108,13 @@ html
         h2 Example
         h3 Worker
         pre
-          from celery import Celery
-          app = Celery('tasks', broker='amqp://guest@localhost//')
-          @app.task
-          def bbq():
-              # burn some meat... asynchronously
-              return
+          code.language-javascript.
+            from celery import Celery
+            app = Celery('tasks', broker='amqp://guest@localhost//')
+            @app.task
+            def bbq():
+                # burn some meat... asynchronously
+                return
 
       section
         h2 Example
